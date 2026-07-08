@@ -1,0 +1,21 @@
+================================================================================
+  FOCP Secure SDLC Assistant — WHICH FILE TO RUN?
+================================================================================
+
+  LINUX / OMARCHY (terminal)          WINDOWS 11
+  ---------------------------         ---------------------------
+  ./RUN-ON-LINUX.sh                   RUN-ON-WINDOWS.bat
+                                      (double-click or run in cmd/PowerShell)
+
+  Optional Linux GUI:                 CLI only on Windows:
+  ./RUN-ON-LINUX-GUI.sh               RUN-ON-WINDOWS-CLI.bat
+
+  First-time setup Linux:             First-time setup Windows:
+  ./platforms/linux/install.sh        platforms\windows\install.bat
+
+  More details:
+  - platforms/linux/README-LINUX.txt
+  - platforms/windows/README-WINDOWS.txt
+  - PLATFORM-GUIDE.md
+
+================================================================================

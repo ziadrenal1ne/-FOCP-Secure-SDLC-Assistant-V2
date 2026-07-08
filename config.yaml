@@ -1,0 +1,96 @@
+# FOCP Secure SDLC Assistant - Configuration
+
+app:
+  name: "FOCP Secure SDLC Assistant"
+  version: "1.0.0"
+  log_level: "INFO"
+  max_workers: 4
+
+scan:
+  exclude_dirs:
+    - node_modules
+    - .git
+    - __pycache__
+    - .venv
+    - venv
+    - dist
+    - build
+    - .tox
+    - .pytest_cache
+    - coverage
+    - .idea
+    - .vscode
+    - vendor
+    - target
+    - bin
+    - obj
+  exclude_extensions:
+    - .pyc
+    - .pyo
+    - .so
+    - .dll
+    - .exe
+    - .bin
+    - .o
+    - .a
+    - .jpg
+    - .jpeg
+    - .png
+    - .gif
+    - .ico
+    - .svg
+    - .woff
+    - .woff2
+    - .ttf
+    - .eot
+    - .mp4
+    - .mp3
+    - .zip
+    - .tar
+    - .gz
+    - .7z
+    - .rar
+    - .pdf
+    - .lock
+  max_file_size_mb: 5
+  secrets_entropy_threshold: 4.5
+
+tools:
+  bandit:
+    enabled: true
+    severity: "low"
+    confidence: "low"
+  semgrep:
+    enabled: true
+    config: "auto"
+  trivy:
+    enabled: true
+    severity: "LOW,MEDIUM,HIGH,CRITICAL"
+
+scoring:
+  weights:
+    authentication: 15
+    authorization: 15
+    configuration: 10
+    dependencies: 20
+    secrets: 20
+    logging: 5
+    encryption: 15
+
+report:
+  output_dir: "./reports"
+  formats:
+    - html
+    - markdown
+    - pdf
+    - json
+  company_name: "FOCP Security"
+  logo_path: null
+
+database:
+  path: "~/.focp-sec/scans.db"
+
+gui:
+  theme: "dark"
+  window_width: 1400
+  window_height: 900
