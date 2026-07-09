@@ -52,6 +52,7 @@ class SecurityFinding:
     code_snippet: str | None = None
     business_impact: str = ""
     analyzer: str = ""
+    compliance_tags: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -72,6 +73,7 @@ class SecurityFinding:
             "code_snippet": self.code_snippet,
             "business_impact": self.business_impact,
             "analyzer": self.analyzer,
+            "compliance_tags": self.compliance_tags,
             "metadata": self.metadata,
         }
 

@@ -51,11 +51,23 @@ class AppConfig:
                 "exclude_extensions": [".pyc", ".jpg", ".png", ".gif", ".zip", ".tar", ".gz"],
                 "max_file_size_mb": 5,
                 "secrets_entropy_threshold": 4.5,
+                "incremental": False,
             },
             "tools": {
                 "bandit": {"enabled": True, "severity": "low", "confidence": "low"},
                 "semgrep": {"enabled": True, "config": "auto"},
                 "trivy": {"enabled": True, "severity": "LOW,MEDIUM,HIGH,CRITICAL"},
+            },
+            "plugins": {
+                "directory": "./plugins",
+                "enabled": True,
+            },
+            "custom_rules": {
+                "path": "./rules.yaml",
+                "enabled": True,
+            },
+            "compliance": {
+                "frameworks": ["PCI-DSS", "HIPAA", "SOC2", "OWASP"],
             },
             "scoring": {
                 "weights": {
@@ -68,9 +80,10 @@ class AppConfig:
                     "encryption": 15,
                 }
             },
-            "report": {"output_dir": "./reports", "formats": ["html", "markdown", "pdf", "json"], "company_name": "FOCP Security"},
+            "report": {"output_dir": "./reports", "formats": ["html", "markdown", "pdf", "json", "sarif"], "company_name": "FOCP Security"},
             "database": {"path": "~/.focp-sec/scans.db"},
             "gui": {"theme": "dark", "window_width": 1400, "window_height": 900},
+            "realtime": {"host": "127.0.0.1", "port": 8080, "watch_delay": 2.0},
         }
 
     def get(self, key: str, default: Any = None) -> Any:

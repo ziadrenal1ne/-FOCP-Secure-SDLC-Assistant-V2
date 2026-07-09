@@ -49,6 +49,20 @@ class RecommendationEngine:
 
         if not finding.example_fix or finding.example_fix.startswith("# See"):
             finding.example_fix = self._generate_example(finding)
+            
+        # Add detailed prevention recommendations based on category
+        prevention_tips = {
+            "Secrets": "Prevention: 1. Use environment variables. 2. Implement a secret manager (HashiCorp Vault, AWS Secrets Manager). 3. Use pre-commit hooks like 'detect-secrets' to catch secrets before they are committed.",
+            "Authentication": "Prevention: 1. Enforce strong password policies. 2. Implement Multi-Factor Authentication (MFA). 3. Use slow hashing algorithms like Argon2 or bcrypt. 4. Implement account lockout mechanisms after failed attempts.",
+            "Authorization": "Prevention: 1. Implement Role-Based or Attribute-Based Access Control (RBAC/ABAC). 2. Deny by default. 3. Validate permissions on every sensitive request on the server side.",
+            "Injection": "Prevention: 1. Always use parameterized queries or ORMs. 2. Never concatenate user input directly into SQL statements. 3. Validate and sanitize all input.",
+            "XSS": "Prevention: 1. Context-aware output encoding. 2. Implement a strong Content Security Policy (CSP). 3. Use modern frameworks (React, Vue) that automatically escape output by default.",
+            "Dependencies": "Prevention: 1. Use dependency scanning tools (Dependabot, Snyk) in CI/CD. 2. Pin all dependency versions. 3. Regularly review and update dependencies.",
+        }
+        
+        prevention = prevention_tips.get(finding.category)
+        if prevention and prevention not in finding.recommendation:
+            finding.recommendation = f"{finding.recommendation}\n\n{prevention}"
 
         if len(finding.references) < 2:
             finding.references.extend(self._default_references(finding))

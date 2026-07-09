@@ -48,8 +48,11 @@ def main(
 def scan(
     project_path: Path = typer.Argument(..., help="Path to project directory", exists=True, file_okay=False),
     output: Optional[Path] = typer.Option(None, "--output", "-o", help="Report output directory"),
-    format: Optional[str] = typer.Option(None, "--format", "-f", help="Report format: html,markdown,pdf,json"),
+    format: Optional[str] = typer.Option(None, "--format", "-f", help="Report format: html,markdown,pdf,json,sarif"),
     no_report: bool = typer.Option(False, "--no-report", help="Skip report generation"),
+    incremental: bool = typer.Option(False, "--incremental", help="Use incremental scanning (only scan modified files)"),
+    watch: bool = typer.Option(False, "--watch", help="Watch project directory for changes and rescan"),
+    dashboard: bool = typer.Option(False, "--dashboard", help="Start real-time web dashboard (implies --watch)"),
 ) -> None:
     """Scan a project for security issues."""
     console.print(Panel.fit(
@@ -57,27 +60,94 @@ def scan(
         border_style="blue",
     ))
 
-    orchestrator = ScanOrchestrator()
-    progress = Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-        console=console,
-    )
+    if dashboard:
+        watch = True
 
-    result = None
-    with progress:
-        task = progress.add_task("Initializing...", total=100)
+    config = get_config()
+    if incremental:
+        config._config.setdefault("scan", {})["incremental"] = True
 
-        def callback(message: str, pct: float) -> None:
-            progress.update(task, description=message, completed=int(pct * 100))
-
+    orchestrator = ScanOrchestrator(config=config)
+    
+    def do_scan(save_to_db=True, progress_cb=None):
         try:
-            result = orchestrator.scan(project_path, progress_callback=callback)
+            return orchestrator.scan(project_path, progress_callback=progress_cb, save_to_db=save_to_db)
         except Exception as e:
             console.print(f"[bold red]Scan failed:[/] {e}")
-            raise typer.Exit(1) from e
+            if not watch:
+                raise typer.Exit(1) from e
+            return None
+
+    if watch:
+        import threading
+        from focp_sec.core.watcher import ProjectWatcher
+        
+        if dashboard:
+            from focp_sec.gui.realtime_dashboard import run_dashboard, manager
+            import asyncio
+            
+            # Start dashboard in a separate thread
+            dash_thread = threading.Thread(target=run_dashboard, daemon=True)
+            dash_thread.start()
+
+        def on_change():
+            res = do_scan(save_to_db=False)
+            if res:
+                _print_scan_summary(res)
+                if dashboard:
+                    try:
+                        # Find the main event loop of the dashboard if needed, 
+                        # or just rely on manager being updated. Since fastapi runs in a thread
+                        # we can try to schedule the broadcast. This requires careful thread safety,
+                        # but for simplicity we assume it works if we use asyncio.run or similar.
+                        # Actually manager.broadcast_result is async, we need a running loop.
+                        loop = asyncio.new_event_loop()
+                        loop.run_until_complete(manager.broadcast_result(res.to_dict()))
+                        loop.close()
+                    except Exception as e:
+                        logger.error("Error sending update to dashboard: %s", e)
+
+        watcher = ProjectWatcher(project_path, on_change)
+        
+        # Initial scan
+        initial_res = do_scan()
+        if initial_res:
+            _print_scan_summary(initial_res)
+            if dashboard:
+                try:
+                    loop = asyncio.new_event_loop()
+                    loop.run_until_complete(manager.broadcast_result(initial_res.to_dict()))
+                    loop.close()
+                except:
+                    pass
+
+        try:
+            watcher.start()
+            console.print("[bold green]Watching for file changes. Press Ctrl+C to stop.[/]")
+            while True:
+                import time
+                time.sleep(1)
+        except KeyboardInterrupt:
+            watcher.stop()
+            console.print("[bold yellow]Stopped watching.[/]")
+            raise typer.Exit(0)
+    else:
+        progress = Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            console=console,
+        )
+
+        result = None
+        with progress:
+            task = progress.add_task("Initializing...", total=100)
+
+            def callback(message: str, pct: float) -> None:
+                progress.update(task, description=message, completed=int(pct * 100))
+
+            result = do_scan(progress_cb=callback)
 
     _print_scan_summary(result)
 

@@ -106,10 +106,27 @@ class ProjectScanner:
 
     def discover_files(self, read_content: bool = True) -> list[ScannedFile]:
         """Discover all scannable files in the project."""
+        import hashlib
+        import json
+        
         files: list[ScannedFile] = []
+        is_incremental = self.config.get("scan.incremental", False)
+        state_file = self.project_path / ".focp-sec-state.json"
+        previous_state = {}
+        new_state = {}
+        
+        if is_incremental and state_file.exists():
+            try:
+                previous_state = json.loads(state_file.read_text())
+                logger.info("Loaded previous scan state for incremental scanning.")
+            except Exception as e:
+                logger.warning("Failed to load state file: %s", e)
+
         for root, dirs, filenames in os.walk(self.project_path):
             dirs[:] = [d for d in dirs if d not in self.config.exclude_dirs]
             for filename in filenames:
+                if filename == ".focp-sec-state.json":
+                    continue
                 file_path = Path(root) / filename
                 if self.should_exclude(file_path):
                     continue
@@ -118,12 +135,27 @@ class ProjectScanner:
                     rel = str(file_path.relative_to(self.project_path))
                     content = None
                     lines = 0
+                    
                     if read_content and self._is_text_file(file_path):
                         try:
                             content = file_path.read_text(encoding="utf-8", errors="replace")
                             lines = content.count("\n") + (1 if content and not content.endswith("\n") else 0)
                         except OSError:
                             continue
+                    
+                    file_hash = ""
+                    if content:
+                        file_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+                    else:
+                        # For binary files, use mtime and size
+                        file_hash = f"{stat.st_size}_{stat.st_mtime}"
+                        
+                    new_state[rel] = file_hash
+                    
+                    # Skip if incremental and file hasn't changed
+                    if is_incremental and previous_state.get(rel) == file_hash:
+                        continue
+                        
                     files.append(
                         ScannedFile(
                             path=file_path,
@@ -136,7 +168,14 @@ class ProjectScanner:
                     )
                 except OSError as e:
                     logger.debug("Skipping %s: %s", file_path, e)
-        logger.info("Discovered %d files in %s", len(files), self.project_path)
+        
+        if is_incremental or files:
+            try:
+                state_file.write_text(json.dumps(new_state))
+            except Exception as e:
+                logger.debug("Failed to write state file: %s", e)
+                
+        logger.info("Discovered %d changed/new files in %s", len(files), self.project_path)
         return files
 
     def _is_text_file(self, path: Path) -> bool:

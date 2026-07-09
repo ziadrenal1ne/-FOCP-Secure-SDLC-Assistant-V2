@@ -26,10 +26,13 @@ from focp_sec.analyzers.security_scorer import SecurityScorer
 from focp_sec.analyzers.sqli_analyzer import SQLInjectionAnalyzer
 from focp_sec.analyzers.threat_modeler import ThreatModeler
 from focp_sec.analyzers.xss_analyzer import XSSAnalyzer
+from focp_sec.analyzers.tree_sitter_analyzer import TreeSitterAnalyzer
 from focp_sec.core.config import AppConfig, get_config
 from focp_sec.core.database import ScanDatabase
 from focp_sec.core.models import ScanResult, SecurityFinding
 from focp_sec.core.scanner import ProjectScanner
+from focp_sec.core.plugin_manager import PluginManager
+from focp_sec.core.custom_rules import CustomRuleAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -37,19 +40,27 @@ logger = logging.getLogger(__name__)
 class ScanOrchestrator:
     """Orchestrates complete security scan pipeline."""
 
-    ANALYZERS = [
-        SecretsScanner(),
-        AuthReviewer(),
-        AuthzReviewer(),
-        OWASPAnalyzer(),
-        SQLInjectionAnalyzer(),
-        XSSAnalyzer(),
-        FileUploadAnalyzer(),
-        HeadersAnalyzer(),
-    ]
-
     def __init__(self, config: AppConfig | None = None) -> None:
         self.config = config or get_config()
+        
+        # Base analyzers
+        self.ANALYZERS = [
+            SecretsScanner(),
+            AuthReviewer(),
+            AuthzReviewer(),
+            OWASPAnalyzer(),
+            SQLInjectionAnalyzer(),
+            XSSAnalyzer(),
+            FileUploadAnalyzer(),
+            HeadersAnalyzer(),
+            TreeSitterAnalyzer(),
+            CustomRuleAnalyzer(),
+        ]
+        
+        # Load third party plugins dynamically
+        self.plugin_manager = PluginManager()
+        self.ANALYZERS.extend(self.plugin_manager.discover_and_load())
+        
         self.scanner = ProjectScanner(Path("."), self.config)
         self.project_detector = ProjectDetector()
         self.dependency_analyzer = DependencyAnalyzer()
