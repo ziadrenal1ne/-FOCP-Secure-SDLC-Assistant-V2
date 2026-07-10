@@ -6,258 +6,321 @@
     <title>Security Report - {{ project.name }}</title>
     <style>
         :root {
-            --bg: #0d1117;
-            --surface: #161b22;
-            --border: #30363d;
-            --text: #c9d1d9;
-            --text-muted: #8b949e;
-            --accent: #58a6ff;
-            --critical: #f85149;
-            --high: #ff7b72;
-            --medium: #d29922;
-            --low: #3fb950;
-            --info: #58a6ff;
+            --bg: #f4f7fb;
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --critical: #dc2626;
+            --high: #ea580c;
+            --medium: #d97706;
+            --low: #16a34a;
+            --info: #0369a1;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
             background: var(--bg);
             color: var(--text);
-            line-height: 1.6;
+            line-height: 1.55;
+            padding: 2rem 1.25rem 3rem;
+        }
+        .container { max-width: 1120px; margin: 0 auto; }
+        .hero {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
             padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.05);
+            margin-bottom: 1.5rem;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1, h2, h3 { color: #f0f6fc; margin-bottom: 1rem; }
-        h1 { font-size: 2.5rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
-        h2 { font-size: 1.8rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-        h3 { font-size: 1.3rem; margin-top: 1.5rem; }
-        .cover {
+        .eyebrow {
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin-bottom: 0.35rem;
+        }
+        h1, h2, h3 { color: var(--text); margin-bottom: 0.75rem; }
+        h1 { font-size: 2rem; line-height: 1.2; }
+        h2 { font-size: 1.2rem; margin-top: 1.75rem; margin-bottom: 0.85rem; }
+        h3 { font-size: 1rem; margin-top: 0; margin-bottom: 0.25rem; }
+        .hero p { color: var(--text-muted); }
+        .score-card {
+            min-width: 190px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem 1.1rem;
             text-align: center;
-            padding: 4rem 2rem;
+        }
+        .score { font-size: 2.15rem; font-weight: 700; color: var(--accent); line-height: 1; }
+        .score-meta { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.35rem; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.9rem; margin: 1rem 0 1.5rem; }
+        .summary-card {
             background: var(--surface);
-            border-radius: 12px;
-            margin-bottom: 2rem;
             border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem;
         }
-        .cover h1 { border: none; font-size: 3rem; }
-        .cover .subtitle { color: var(--text-muted); font-size: 1.2rem; margin-top: 1rem; }
-        .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
-        .meta-card {
+        .summary-card .label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
+        .summary-card .value { font-size: 1.3rem; font-weight: 700; margin-top: 0.25rem; }
+        .section-card {
             background: var(--surface);
-            padding: 1.5rem;
-            border-radius: 8px;
             border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.1rem 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
         }
-        .meta-card .label { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
-        .meta-card .value { font-size: 1.5rem; font-weight: 600; margin-top: 0.25rem; }
-        .score-circle {
-            width: 120px; height: 120px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; font-weight: bold;
-            margin: 1rem auto;
-            border: 4px solid var(--accent);
-        }
+        .section-card p { color: var(--text-muted); margin-bottom: 0.5rem; }
         .severity-critical { color: var(--critical); }
         .severity-high { color: var(--high); }
         .severity-medium { color: var(--medium); }
         .severity-low { color: var(--low); }
         .severity-info { color: var(--info); }
         .finding {
-            background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
             border-left: 4px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1rem 0.9rem;
+            margin-bottom: 0.85rem;
+            background: var(--surface-alt);
         }
         .finding.critical { border-left-color: var(--critical); }
         .finding.high { border-left-color: var(--high); }
         .finding.medium { border-left-color: var(--medium); }
         .finding.low { border-left-color: var(--low); }
-        .finding-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+        .finding-header { display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; margin-bottom: 0.45rem; }
         .badge {
             display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            padding: 0.2rem 0.55rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
-        .badge-critical { background: var(--critical); color: white; }
-        .badge-high { background: var(--high); color: white; }
-        .badge-medium { background: var(--medium); color: #000; }
-        .badge-low { background: var(--low); color: #000; }
-        .badge-info { background: var(--info); color: #000; }
+        .badge-critical { background: rgba(220, 38, 38, 0.12); color: var(--critical); }
+        .badge-high { background: rgba(234, 88, 12, 0.12); color: var(--high); }
+        .badge-medium { background: rgba(217, 119, 6, 0.12); color: var(--medium); }
+        .badge-low { background: rgba(22, 163, 74, 0.12); color: var(--low); }
+        .badge-info { background: rgba(3, 105, 161, 0.12); color: var(--info); }
         pre, code {
-            background: #0d1117;
-            border: 1px solid var(--border);
-            border-radius: 4px;
+            background: #0f172a;
+            color: #f8fafc;
+            border-radius: 8px;
             padding: 0.75rem;
-            font-family: 'Fira Code', 'Consolas', monospace;
-            font-size: 0.85rem;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+            font-size: 0.83rem;
             overflow-x: auto;
             white-space: pre-wrap;
+            margin-top: 0.6rem;
         }
-        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
-        th { background: var(--surface); color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
-        tr:hover { background: var(--surface); }
-        .risk-critical { background: rgba(248, 81, 73, 0.2); }
-        .risk-high { background: rgba(255, 123, 114, 0.15); }
-        .risk-medium { background: rgba(210, 153, 34, 0.15); }
-        .tree { font-family: monospace; white-space: pre; background: var(--surface); padding: 1rem; border-radius: 8px; font-size: 0.85rem; }
-        .checklist-pass { color: var(--low); }
-        .checklist-fail { color: var(--critical); }
-        .checklist-warning { color: var(--medium); }
-        .footer { text-align: center; color: var(--text-muted); margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; margin: 0.2rem 0 0.6rem; background: var(--surface); }
+        th, td { padding: 0.72rem 0.7rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+        th { background: var(--surface-alt); color: var(--text-muted); font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+        .risk-critical { background: rgba(220, 38, 38, 0.06); }
+        .risk-high { background: rgba(234, 88, 12, 0.06); }
+        .risk-medium { background: rgba(217, 119, 6, 0.06); }
+        .tree {
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.85rem;
+            font-size: 0.84rem;
+            white-space: pre-wrap;
+            color: var(--text-muted);
+        }
+        .checklist-pass { color: var(--low); font-weight: 600; }
+        .checklist-fail { color: var(--critical); font-weight: 600; }
+        .checklist-warning { color: var(--medium); font-weight: 600; }
+        .footer {
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
         @media print {
-            body { background: white; color: black; }
-            .finding { break-inside: avoid; }
+            body { background: white; padding: 0.7rem; }
+            .hero, .section-card, .finding, .summary-card { box-shadow: none; }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="cover">
-        <h1>Security Assessment Report</h1>
-        <p class="subtitle">{{ project.name }}</p>
-        <p class="subtitle">{{ company_name }} | {{ timestamp }}</p>
-        <div class="score-circle">{{ score.overall|round(1) }}<span style="font-size:1rem">/100</span></div>
-        <p>Grade: <strong>{{ score.grade }}</strong></p>
-    </div>
-
-    <h2>Executive Summary</h2>
-    <p>This security assessment of <strong>{{ project.name }}</strong> identified
-    <strong>{{ summary.total_findings }}</strong> findings across multiple security domains.
-    The overall security score is <strong>{{ score.overall|round(1) }}/100 (Grade {{ score.grade }})</strong>.</p>
-    <div class="meta">
-        <div class="meta-card"><div class="label">Critical</div><div class="value severity-critical">{{ summary.critical }}</div></div>
-        <div class="meta-card"><div class="label">High</div><div class="value severity-high">{{ summary.high }}</div></div>
-        <div class="meta-card"><div class="label">Medium</div><div class="value severity-medium">{{ summary.medium }}</div></div>
-        <div class="meta-card"><div class="label">Low</div><div class="value severity-low">{{ summary.low }}</div></div>
-        <div class="meta-card"><div class="label">Scan Duration</div><div class="value">{{ scan_duration_seconds }}s</div></div>
-    </div>
-
-    <h2>Project Information</h2>
-    <table>
-        <tr><th>Property</th><th>Value</th></tr>
-        <tr><td>Project Path</td><td>{{ project.path }}</td></tr>
-        <tr><td>Languages</td><td>{{ project.languages|join(', ') or 'N/A' }}</td></tr>
-        <tr><td>Frameworks</td><td>{{ project.frameworks|join(', ') or 'N/A' }}</td></tr>
-        <tr><td>Files Scanned</td><td>{{ project.file_count }}</td></tr>
-        <tr><td>Total Lines</td><td>{{ project.total_lines }}</td></tr>
-        <tr><td>Docker</td><td>{{ 'Yes' if project.has_docker else 'No' }}</td></tr>
-        <tr><td>Git Repository</td><td>{{ 'Yes' if project.has_git else 'No' }}</td></tr>
-    </table>
-
-    <h2>Security Score Breakdown</h2>
-    <table>
-        <tr><th>Category</th><th>Score</th></tr>
-        {% for cat, val in score_breakdown %}
-        <tr><td>{{ cat }}</td><td>{{ val|round(1) }}/100</td></tr>
-        {% endfor %}
-    </table>
-
-    <h2>OWASP Findings</h2>
-    {% for finding in findings %}
-    <div class="finding {{ finding.severity }}">
-        <div class="finding-header">
-            <h3>{{ finding.title }}</h3>
-            <span class="badge badge-{{ finding.severity }}">{{ finding.severity|upper }}</span>
+    <header class="hero">
+        <div>
+            <p class="eyebrow">Security Assessment Report</p>
+            <h1>{{ project.name }}</h1>
+            <p>{{ company_name }} • {{ timestamp }}</p>
         </div>
-        {% if finding.owasp_category %}<p><strong>OWASP:</strong> {{ finding.owasp_category }}</p>{% endif %}
-        <p>{{ finding.description }}</p>
-        <p><strong>Risk:</strong> {{ finding.risk }}</p>
-        <p><strong>Recommendation:</strong> {{ finding.recommendation }}</p>
-        {% if finding.example_fix %}<pre><code>{{ finding.example_fix }}</code></pre>{% endif %}
-        {% if finding.file_path %}<p><strong>Location:</strong> {{ finding.file_path }}{% if finding.line_number %}:{{ finding.line_number }}{% endif %}</p>{% endif %}
-        {% if finding.references %}<p><strong>References:</strong> {% for ref in finding.references %}<a href="{{ ref }}" style="color:var(--accent)">{{ ref }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+        <div class="score-card">
+            <div class="score">{{ score.overall|round(1) }}</div>
+            <div class="score-meta">Overall score • Grade {{ score.grade }}</div>
+        </div>
+    </header>
+
+    <div class="summary-grid">
+        <div class="summary-card"><div class="label">Critical</div><div class="value severity-critical">{{ summary.critical }}</div></div>
+        <div class="summary-card"><div class="label">High</div><div class="value severity-high">{{ summary.high }}</div></div>
+        <div class="summary-card"><div class="label">Medium</div><div class="value severity-medium">{{ summary.medium }}</div></div>
+        <div class="summary-card"><div class="label">Low</div><div class="value severity-low">{{ summary.low }}</div></div>
+        <div class="summary-card"><div class="label">Scan Duration</div><div class="value">{{ scan_duration_seconds }}s</div></div>
     </div>
-    {% endfor %}
+
+    <div class="section-card">
+        <h2>Executive Summary</h2>
+        <p>This assessment of <strong>{{ project.name }}</strong> identified <strong>{{ summary.total_findings }}</strong> findings across the security surface. The current posture is rated <strong>{{ score.overall|round(1) }}/100</strong> with grade <strong>{{ score.grade }}</strong>.</p>
+    </div>
+
+    <div class="section-card">
+        <h2>Project Information</h2>
+        <table>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Project Path</td><td>{{ project.path }}</td></tr>
+            <tr><td>Languages</td><td>{{ project.languages|join(', ') or 'N/A' }}</td></tr>
+            <tr><td>Frameworks</td><td>{{ project.frameworks|join(', ') or 'N/A' }}</td></tr>
+            <tr><td>Files Scanned</td><td>{{ project.file_count }}</td></tr>
+            <tr><td>Total Lines</td><td>{{ project.total_lines }}</td></tr>
+            <tr><td>Docker</td><td>{{ 'Yes' if project.has_docker else 'No' }}</td></tr>
+            <tr><td>Git Repository</td><td>{{ 'Yes' if project.has_git else 'No' }}</td></tr>
+        </table>
+    </div>
+
+    <div class="section-card">
+        <h2>Security Score Breakdown</h2>
+        <table>
+            <tr><th>Category</th><th>Score</th></tr>
+            {% for cat, val in score_breakdown %}
+            <tr><td>{{ cat }}</td><td>{{ val|round(1) }}/100</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="section-card">
+        <h2>OWASP Findings</h2>
+        {% for finding in findings %}
+        <div class="finding {{ finding.severity }}">
+            <div class="finding-header">
+                <h3>{{ finding.title }}</h3>
+                <span class="badge badge-{{ finding.severity }}">{{ finding.severity|upper }}</span>
+            </div>
+            {% if finding.owasp_category %}<p><strong>OWASP:</strong> {{ finding.owasp_category }}</p>{% endif %}
+            <p>{{ finding.description }}</p>
+            {% if finding.risk %}<p><strong>Risk:</strong> {{ finding.risk }}</p>{% endif %}
+            {% if finding.recommendation %}<p><strong>Recommendation:</strong> {{ finding.recommendation }}</p>{% endif %}
+            {% if finding.example_fix %}<pre><code>{{ finding.example_fix }}</code></pre>{% endif %}
+            {% if finding.file_path %}<p><strong>Location:</strong> {{ finding.file_path }}{% if finding.line_number %}:{{ finding.line_number }}{% endif %}</p>{% endif %}
+            {% if finding.references %}<p><strong>References:</strong> {% for ref in finding.references %}<a href="{{ ref }}" style="color:var(--accent)">{{ ref }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
 
     {% if dependency_findings %}
-    <h2>Dependency Analysis</h2>
-    {% for finding in dependency_findings %}
-    <div class="finding {{ finding.severity }}">
-        <div class="finding-header">
-            <h3>{{ finding.title }}</h3>
-            <span class="badge badge-{{ finding.severity }}">{{ finding.severity|upper }}</span>
+    <div class="section-card">
+        <h2>Dependency Analysis</h2>
+        {% for finding in dependency_findings %}
+        <div class="finding {{ finding.severity }}">
+            <div class="finding-header">
+                <h3>{{ finding.title }}</h3>
+                <span class="badge badge-{{ finding.severity }}">{{ finding.severity|upper }}</span>
+            </div>
+            <p>{{ finding.description }}</p>
+            {% if finding.recommendation %}<p><strong>Recommendation:</strong> {{ finding.recommendation }}</p>{% endif %}
         </div>
-        <p>{{ finding.description }}</p>
-        <p><strong>Recommendation:</strong> {{ finding.recommendation }}</p>
+        {% endfor %}
     </div>
-    {% endfor %}
     {% endif %}
 
-    <h2>Risk Matrix</h2>
-    <table>
-        <tr><th>Title</th><th>Category</th><th>Likelihood</th><th>Impact</th><th>Risk Score</th><th>Level</th></tr>
-        {% for item in risk_matrix %}
-        <tr class="{% if item.risk_score >= 20 %}risk-critical{% elif item.risk_score >= 12 %}risk-high{% elif item.risk_score >= 6 %}risk-medium{% endif %}">
-            <td>{{ item.title[:60] }}</td>
-            <td>{{ item.category }}</td>
-            <td>{{ item.likelihood }}/5</td>
-            <td>{{ item.impact }}/5</td>
-            <td>{{ item.risk_score }}</td>
-            <td>{% if item.risk_score >= 20 %}Critical{% elif item.risk_score >= 12 %}High{% elif item.risk_score >= 6 %}Medium{% else %}Low{% endif %}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="section-card">
+        <h2>Risk Matrix</h2>
+        <table>
+            <tr><th>Title</th><th>Category</th><th>Likelihood</th><th>Impact</th><th>Risk Score</th><th>Level</th></tr>
+            {% for item in risk_matrix %}
+            <tr class="{% if item.risk_score >= 20 %}risk-critical{% elif item.risk_score >= 12 %}risk-high{% elif item.risk_score >= 6 %}risk-medium{% endif %}">
+                <td>{{ item.title[:60] }}</td>
+                <td>{{ item.category }}</td>
+                <td>{{ item.likelihood }}/5</td>
+                <td>{{ item.impact }}/5</td>
+                <td>{{ item.risk_score }}</td>
+                <td>{% if item.risk_score >= 20 %}Critical{% elif item.risk_score >= 12 %}High{% elif item.risk_score >= 6 %}Medium{% else %}Low{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 
-    <h2>Threat Model (STRIDE)</h2>
-    <table>
-        <tr><th>Asset</th><th>Threat</th><th>STRIDE</th><th>Attack Surface</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
-        {% for t in threat_model %}
-        <tr>
-            <td>{{ t.asset }}</td>
-            <td>{{ t.threat }}</td>
-            <td>{{ t.stride_category }}</td>
-            <td>{{ t.attack_surface }}</td>
-            <td>{{ t.likelihood }}</td>
-            <td>{{ t.impact }}</td>
-            <td>{{ t.mitigation[:80] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="section-card">
+        <h2>Threat Model (STRIDE)</h2>
+        <table>
+            <tr><th>Asset</th><th>Threat</th><th>STRIDE</th><th>Attack Surface</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
+            {% for t in threat_model %}
+            <tr>
+                <td>{{ t.asset }}</td>
+                <td>{{ t.threat }}</td>
+                <td>{{ t.stride_category }}</td>
+                <td>{{ t.attack_surface }}</td>
+                <td>{{ t.likelihood }}</td>
+                <td>{{ t.impact }}</td>
+                <td>{{ t.mitigation[:80] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 
-    <h2>RBAC Matrix</h2>
-    <table>
-        <tr><th>Role</th><th>Resource</th><th>Permissions</th><th>Description</th></tr>
-        {% for r in rbac_matrix %}
-        <tr>
-            <td>{{ r.role }}</td>
-            <td>{{ r.resource }}</td>
-            <td>{{ r.permissions|join(', ') }}</td>
-            <td>{{ r.description }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="section-card">
+        <h2>RBAC Matrix</h2>
+        <table>
+            <tr><th>Role</th><th>Resource</th><th>Permissions</th><th>Description</th></tr>
+            {% for r in rbac_matrix %}
+            <tr>
+                <td>{{ r.role }}</td>
+                <td>{{ r.resource }}</td>
+                <td>{{ r.permissions|join(', ') }}</td>
+                <td>{{ r.description }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 
-    <h2>Architecture Summary</h2>
-    <p>{{ architecture.summary }}</p>
-    <h3>Project Tree</h3>
-    <div class="tree">{{ architecture.project_tree }}</div>
+    <div class="section-card">
+        <h2>Architecture Summary</h2>
+        <p>{{ architecture.summary }}</p>
+        <h3>Project Tree</h3>
+        <div class="tree">{{ architecture.project_tree }}</div>
+    </div>
 
     {% for checklist_name, items in checklists.items() %}
-    <h2>{{ checklist_name|upper }} Checklist</h2>
-    <table>
-        <tr><th>Category</th><th>Item</th><th>Status</th><th>Notes</th></tr>
-        {% for item in items %}
-        <tr>
-            <td>{{ item.category }}</td>
-            <td>{{ item.item }}</td>
-            <td class="checklist-{{ item.status }}">{{ item.status|upper }}</td>
-            <td>{{ item.notes }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="section-card">
+        <h2>{{ checklist_name|upper }} Checklist</h2>
+        <table>
+            <tr><th>Category</th><th>Item</th><th>Status</th><th>Notes</th></tr>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.category }}</td>
+                <td>{{ item.item }}</td>
+                <td class="checklist-{{ item.status }}">{{ item.status|upper }}</td>
+                <td>{{ item.notes }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
     {% endfor %}
 
-    <h2>Conclusion</h2>
-    <p>This assessment identified {{ summary.total_findings }} security findings requiring attention.
-    Priority should be given to {{ summary.critical }} critical and {{ summary.high }} high severity issues.
-    Regular security scanning should be integrated into the CI/CD pipeline to maintain security posture.</p>
+    <div class="section-card">
+        <h2>Conclusion</h2>
+        <p>This assessment identified {{ summary.total_findings }} security findings requiring attention. Priority should be given to {{ summary.critical }} critical and {{ summary.high }} high severity issues.</p>
+    </div>
 
     <div class="footer">
         <p>Generated by FOCP Secure SDLC Assistant v{{ app_version }}</p>
