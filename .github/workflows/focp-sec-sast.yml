@@ -18,10 +18,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.13'
 
@@ -33,11 +33,13 @@ jobs:
       - name: Run Scan
         run: |
           # Generate SARIF report for GitHub Advanced Security
-          focp-sec scan . --format sarif --output-dir ./reports
+          mkdir -p ./reports
+          focp-sec scan . --format sarif --output ./reports
         continue-on-error: true
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: ./reports/**/*.sarif
+          sarif_file: ./reports/*.sarif
+          if-no-files-found: warn
           category: my-focp-sec-analysis
